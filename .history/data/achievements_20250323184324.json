@@ -1,0 +1,11 @@
+{
+    "yogavarshini": [
+        {"title": "Hackathon Winner", "description": "Won first place in Karnataka Hackathon 2024"},
+        {"title": "Research Paper Published", "description": "Published paper on AI-based Brain Tumor Detection at IConIC 2024"},
+        {"title": "Internship Completion", "description": "Completed internship at Chennai Metro Rail Limited"}
+    ],
+    "john_doe": [
+        {"title": "Cybersecurity Challenge", "description": "Ranked Top 10 in National Cybersecurity Challenge"},
+        {"title": "App Development", "description": "Developed a mobile app for healthcare management"}
+    ]
+}
