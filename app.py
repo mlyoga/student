@@ -73,13 +73,13 @@ if page == "🏠 Home":
         try:
             if uploaded_file.type.startswith("image/"):
                 image = Image.open(uploaded_file)
-                st.image(image, caption="🖼 Uploaded Certificate", use_column_width=True)
+                st.image(image, caption="🖼 Uploaded Certificate", use_container_width=True)
                 extracted_texts.append(extract_text_from_image(image))
 
             elif uploaded_file.type == "application/pdf":
                 images = extract_images_from_pdf(uploaded_file)
                 for idx, image in enumerate(images):
-                    st.image(image, caption=f"📄 Page {idx + 1}", use_column_width=True)
+                    st.image(image, caption=f"📄 Page {idx + 1}", use_container_width=True)
                     extracted_texts.append(extract_text_from_image(image))
             
             # Display extracted text and save
