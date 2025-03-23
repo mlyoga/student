@@ -4,7 +4,6 @@ import fitz  # PyMuPDF
 import io
 import datetime
 import os
-import pytesseract
 from utils.ocr import extract_text_from_image
 from utils.resume_generator import generate_resume
 from utils.recommender import recommend_events
@@ -13,17 +12,6 @@ from utils.auth import authenticate_user
 
 # 🎨 Set Streamlit Page Config
 st.set_page_config(page_title="Student Portfolio", page_icon="📜", layout="wide")
-
-# ✅ Set Tesseract Path Based on OS
-if os.name == "nt":  # Windows
-    pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
-else:  # Linux
-    pytesseract.pytesseract.tesseract_cmd = "/usr/bin/tesseract"
-
-# ✅ Check if Tesseract Exists
-if not os.path.exists(pytesseract.pytesseract.tesseract_cmd):
-    st.error(f"⚠ Tesseract not found at {pytesseract.pytesseract_cmd}. Please install it.")
-    st.stop()
 
 # 🎉 App Title
 st.title("📜 Student Digital Portfolio & Resume Generator")
@@ -34,6 +22,7 @@ if "authenticated" not in st.session_state:
 if "username" not in st.session_state:
     st.session_state.username = None
 
+# 🔐 User Authentication (Login)
 if not st.session_state.authenticated:
     st.header("🔑 Login")
     username = st.text_input("👤 Username")
@@ -69,7 +58,7 @@ def extract_images_from_pdf(pdf_file):
         st.error(f"⚠ Error extracting images from PDF: {e}")
     return images
 
-# 📂 **Digital Portfolio (With Certificates)**
+# 📂 **Digital Portfolio (With Certificates & Achievements)**
 if page == "📂 Digital Portfolio":
     st.header("📂 My Digital Portfolio")
 
@@ -94,9 +83,8 @@ if page == "📂 Digital Portfolio":
 
     # 📜 Certificates (Displays Uploaded Ones!)
     st.subheader("📜 Certificates")
-    saved_certificates = get_achievements(st.session_state.username)
-    if saved_certificates:
-        for idx, cert in enumerate(saved_certificates):
+    if achievements:
+        for idx, cert in enumerate(achievements):
             if isinstance(cert, dict) and "text" in cert:
                 st.write(f"🏅 *Certificate {idx + 1}:* {cert['text']}")
     else:
@@ -173,7 +161,6 @@ elif page == "🏠 Home":
                 if st.button(f"➕ Save Certificate {idx + 1}", key=f"save_{idx}"):
                     save_achievement(st.session_state.username, f"Certificate {idx + 1}", text)
                     st.success(f"✅ Certificate {idx + 1} Saved! Refresh Portfolio to View.")
-                    st.rerun()  # ✅ Fixed: Ensures certificates appear instantly in Portfolio
 
         except Exception as e:
             st.error(f"⚠ Error processing file: {e}")

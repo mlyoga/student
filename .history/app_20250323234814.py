@@ -11,7 +11,7 @@ from utils.recommender import recommend_events
 from utils.database import save_achievement, get_achievements
 from utils.auth import authenticate_user
 
-# 🎨 Set Streamlit Page Config
+# 🎨 Set Streamlit Page Config (Title & Icon)
 st.set_page_config(page_title="Student Portfolio", page_icon="📜", layout="wide")
 
 # ✅ Set Tesseract Path Based on OS
@@ -22,7 +22,7 @@ else:  # Linux
 
 # ✅ Check if Tesseract Exists
 if not os.path.exists(pytesseract.pytesseract.tesseract_cmd):
-    st.error(f"⚠ Tesseract not found at {pytesseract.pytesseract_cmd}. Please install it.")
+    st.error(f"⚠️ Tesseract not found at {pytesseract.pytesseract.tesseract_cmd}. Please install it.")
     st.stop()
 
 # 🎉 App Title
@@ -55,7 +55,7 @@ page = st.sidebar.radio(
     ["🏠 Home", "📄 Resume Generator", "🎟 Event Recommendations", "📂 Digital Portfolio"]
 )
 
-# 🖼 Extract Images from PDF
+# 🖼 Function to Extract Images from PDF
 def extract_images_from_pdf(pdf_file):
     images = []
     try:
@@ -66,10 +66,10 @@ def extract_images_from_pdf(pdf_file):
                 base_image = pdf_document.extract_image(img[0])
                 images.append(Image.open(io.BytesIO(base_image["image"])))
     except Exception as e:
-        st.error(f"⚠ Error extracting images from PDF: {e}")
+        st.error(f"⚠️ Error extracting images from PDF: {e}")
     return images
 
-# 📂 **Digital Portfolio (With Certificates)**
+# 📂 **Digital Portfolio (Fully Editable)**
 if page == "📂 Digital Portfolio":
     st.header("📂 My Digital Portfolio")
 
@@ -88,19 +88,15 @@ if page == "📂 Digital Portfolio":
     if achievements:
         for idx, achievement in enumerate(achievements):
             if isinstance(achievement, dict) and "text" in achievement:
-                st.write(f"📌 *{idx + 1}:* {achievement['text']}")
+                st.write(f"📌 **{idx + 1}:** {achievement['text']}")
     else:
-        st.warning("⚠ No achievements added yet.")
+        st.warning("⚠️ No achievements added yet.")
 
-    # 📜 Certificates (Displays Uploaded Ones!)
     st.subheader("📜 Certificates")
-    saved_certificates = get_achievements(st.session_state.username)
-    if saved_certificates:
-        for idx, cert in enumerate(saved_certificates):
-            if isinstance(cert, dict) and "text" in cert:
-                st.write(f"🏅 *Certificate {idx + 1}:* {cert['text']}")
-    else:
-        st.warning("⚠ No certificates uploaded yet.")
+    st.write("🏅 **Certificate 1:** [Certificate Name Here]")
+
+    st.subheader("🚀 Projects")
+    st.write("🔹 **Project 1:** [Project Name Here]")
 
     if st.button("💾 Save Profile"):
         st.success("✅ Profile Updated Successfully!")
@@ -131,7 +127,7 @@ elif page == "📄 Resume Generator":
         if isinstance(resume_pdf, io.BytesIO):
             st.download_button(label="📥 Download Resume", data=resume_pdf.getvalue(), file_name="resume.pdf", mime="application/pdf")
         else:
-            st.error("⚠ Resume generation failed.")
+            st.error("⚠️ Resume generation failed.")
 
 # 🎟 **Event Recommendations**
 elif page == "🎟 Event Recommendations":
@@ -145,11 +141,11 @@ elif page == "🎟 Event Recommendations":
                 for event in recommended_events:
                     st.write(f"📍 {event}")
             else:
-                st.warning("⚠ No matching events found.")
+                st.warning("⚠️ No matching events found.")
         else:
-            st.warning("⚠ Please enter at least one interest.")
+            st.warning("⚠️ Please enter at least one interest.")
 
-# 🏠 **Home - Upload Certificates (Saves to Portfolio)**
+# 🏠 **Home - Upload Certificates**
 elif page == "🏠 Home":
     st.header("🎉 Upload Certificates")
     uploaded_file = st.file_uploader("📂 Upload a certificate", type=["jpg", "png", "pdf"])
@@ -169,11 +165,9 @@ elif page == "🏠 Home":
                     extracted_texts.append(extract_text_from_image(image))
 
             for idx, text in enumerate(extracted_texts):
-                st.write(f"📝 *Extracted Text {idx + 1}:* {text}")
-                if st.button(f"➕ Save Certificate {idx + 1}", key=f"save_{idx}"):
-                    save_achievement(st.session_state.username, f"Certificate {idx + 1}", text)
-                    st.success(f"✅ Certificate {idx + 1} Saved! Refresh Portfolio to View.")
-                    st.rerun()  # ✅ Fixed: Ensures certificates appear instantly in Portfolio
+                st.write(f"📝 **Extracted Text {idx + 1}:**", text)
+                st.button(f"➕ Save Certificate {idx + 1}", key=f"save_{idx}")
 
         except Exception as e:
-            st.error(f"⚠ Error processing file: {e}")
+            st.error(f"⚠️ Error processing file: {e}")
+

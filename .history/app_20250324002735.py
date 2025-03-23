@@ -22,7 +22,7 @@ else:  # Linux
 
 # ✅ Check if Tesseract Exists
 if not os.path.exists(pytesseract.pytesseract.tesseract_cmd):
-    st.error(f"⚠ Tesseract not found at {pytesseract.pytesseract_cmd}. Please install it.")
+    st.error(f"⚠ Tesseract not found at {pytesseract.pytesseract.tesseract_cmd}. Please install it.")
     st.stop()
 
 # 🎉 App Title
@@ -69,7 +69,7 @@ def extract_images_from_pdf(pdf_file):
         st.error(f"⚠ Error extracting images from PDF: {e}")
     return images
 
-# 📂 **Digital Portfolio (With Certificates)**
+# 📂 *Digital Portfolio (With Certificates)*
 if page == "📂 Digital Portfolio":
     st.header("📂 My Digital Portfolio")
 
@@ -105,7 +105,7 @@ if page == "📂 Digital Portfolio":
     if st.button("💾 Save Profile"):
         st.success("✅ Profile Updated Successfully!")
 
-# 📄 **Resume Generator**
+# 📄 *Resume Generator*
 elif page == "📄 Resume Generator":
     st.header("📑 Resume Generator")
 
@@ -117,7 +117,6 @@ elif page == "📄 Resume Generator":
     skills = st.text_area("🛠 Skills (comma-separated)")
     education = st.text_area("🎓 Education Details")
     experience = st.text_area("💼 Work Experience")
-    projects = st.text_area("🚀 Projects (comma-separated)")
     user_achievements = st.text_area("🏆 Achievements (comma-separated)")
 
     saved_achievements = get_achievements(st.session_state.username)
@@ -126,14 +125,14 @@ elif page == "📄 Resume Generator":
     ) if saved_achievements else "No achievements added yet."
 
     if st.button("📜 Generate Resume"):
-        resume_pdf = generate_resume(name, dob, email, phone, address, skills, education, experience, projects, all_achievements)
+        resume_pdf = generate_resume(name, dob, email, phone, address, skills, education, experience, all_achievements)
 
         if isinstance(resume_pdf, io.BytesIO):
             st.download_button(label="📥 Download Resume", data=resume_pdf.getvalue(), file_name="resume.pdf", mime="application/pdf")
         else:
             st.error("⚠ Resume generation failed.")
 
-# 🎟 **Event Recommendations**
+# 🎟 *Event Recommendations*
 elif page == "🎟 Event Recommendations":
     st.header("🎭 Recommended Events for You")
     interests = st.text_input("🎯 Enter your interests (comma-separated)")
@@ -149,7 +148,7 @@ elif page == "🎟 Event Recommendations":
         else:
             st.warning("⚠ Please enter at least one interest.")
 
-# 🏠 **Home - Upload Certificates (Saves to Portfolio)**
+# 🏠 *Home - Upload Certificates (Saves to Portfolio)*
 elif page == "🏠 Home":
     st.header("🎉 Upload Certificates")
     uploaded_file = st.file_uploader("📂 Upload a certificate", type=["jpg", "png", "pdf"])

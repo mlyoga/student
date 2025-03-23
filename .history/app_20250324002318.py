@@ -5,6 +5,7 @@ import io
 import datetime
 import os
 import pytesseract
+import time
 from utils.ocr import extract_text_from_image
 from utils.resume_generator import generate_resume
 from utils.recommender import recommend_events
@@ -22,11 +23,8 @@ else:  # Linux
 
 # ✅ Check if Tesseract Exists
 if not os.path.exists(pytesseract.pytesseract.tesseract_cmd):
-    st.error(f"⚠ Tesseract not found at {pytesseract.pytesseract_cmd}. Please install it.")
+    st.error(f"⚠ Tesseract not found at {pytesseract.pytesseract.tesseract_cmd}. Please install it.")
     st.stop()
-
-# 🎉 App Title
-st.title("📜 Student Digital Portfolio & Resume Generator")
 
 # 🔑 Authentication System
 if "authenticated" not in st.session_state:
@@ -35,17 +33,21 @@ if "username" not in st.session_state:
     st.session_state.username = None
 
 if not st.session_state.authenticated:
-    st.header("🔑 Login")
+    st.title("🔑 Student Login")
+
     username = st.text_input("👤 Username")
     password = st.text_input("🔒 Password", type="password")
 
-    if st.button("Login"):
-        if authenticate_user(username, password):
-            st.session_state.authenticated = True
-            st.session_state.username = username
-            st.success("✅ Logged in successfully!")
-        else:
-            st.error("❌ Invalid username or password.")
+    if st.button("🚀 Login"):
+        with st.spinner("Authenticating..."):
+            time.sleep(1)  # Simulating authentication delay
+            if authenticate_user(username, password):
+                st.session_state.authenticated = True
+                st.session_state.username = username
+                st.success("✅ Login successful!")
+                st.experimental_rerun()  # Redirect after login
+            else:
+                st.error("❌ Invalid username or password.")
     st.stop()
 
 # 📌 Sidebar Navigation
@@ -88,7 +90,7 @@ if page == "📂 Digital Portfolio":
     if achievements:
         for idx, achievement in enumerate(achievements):
             if isinstance(achievement, dict) and "text" in achievement:
-                st.write(f"📌 *{idx + 1}:* {achievement['text']}")
+                st.write(f"📌 **{idx + 1}:** {achievement['text']}")
     else:
         st.warning("⚠ No achievements added yet.")
 
@@ -98,14 +100,14 @@ if page == "📂 Digital Portfolio":
     if saved_certificates:
         for idx, cert in enumerate(saved_certificates):
             if isinstance(cert, dict) and "text" in cert:
-                st.write(f"🏅 *Certificate {idx + 1}:* {cert['text']}")
+                st.write(f"🏅 **Certificate {idx + 1}:** {cert['text']}")
     else:
         st.warning("⚠ No certificates uploaded yet.")
 
     if st.button("💾 Save Profile"):
         st.success("✅ Profile Updated Successfully!")
 
-# 📄 **Resume Generator**
+# 📄 *Resume Generator*
 elif page == "📄 Resume Generator":
     st.header("📑 Resume Generator")
 
@@ -117,7 +119,6 @@ elif page == "📄 Resume Generator":
     skills = st.text_area("🛠 Skills (comma-separated)")
     education = st.text_area("🎓 Education Details")
     experience = st.text_area("💼 Work Experience")
-    projects = st.text_area("🚀 Projects (comma-separated)")
     user_achievements = st.text_area("🏆 Achievements (comma-separated)")
 
     saved_achievements = get_achievements(st.session_state.username)
@@ -126,14 +127,14 @@ elif page == "📄 Resume Generator":
     ) if saved_achievements else "No achievements added yet."
 
     if st.button("📜 Generate Resume"):
-        resume_pdf = generate_resume(name, dob, email, phone, address, skills, education, experience, projects, all_achievements)
+        resume_pdf = generate_resume(name, dob, email, phone, address, skills, education, experience, all_achievements)
 
         if isinstance(resume_pdf, io.BytesIO):
             st.download_button(label="📥 Download Resume", data=resume_pdf.getvalue(), file_name="resume.pdf", mime="application/pdf")
         else:
             st.error("⚠ Resume generation failed.")
 
-# 🎟 **Event Recommendations**
+# 🎟 *Event Recommendations*
 elif page == "🎟 Event Recommendations":
     st.header("🎭 Recommended Events for You")
     interests = st.text_input("🎯 Enter your interests (comma-separated)")
@@ -149,7 +150,7 @@ elif page == "🎟 Event Recommendations":
         else:
             st.warning("⚠ Please enter at least one interest.")
 
-# 🏠 **Home - Upload Certificates (Saves to Portfolio)**
+# 🏠 *Home - Upload Certificates (Saves to Portfolio)*
 elif page == "🏠 Home":
     st.header("🎉 Upload Certificates")
     uploaded_file = st.file_uploader("📂 Upload a certificate", type=["jpg", "png", "pdf"])
@@ -169,11 +170,11 @@ elif page == "🏠 Home":
                     extracted_texts.append(extract_text_from_image(image))
 
             for idx, text in enumerate(extracted_texts):
-                st.write(f"📝 *Extracted Text {idx + 1}:* {text}")
+                st.write(f"📝 **Extracted Text {idx + 1}:** {text}")
                 if st.button(f"➕ Save Certificate {idx + 1}", key=f"save_{idx}"):
                     save_achievement(st.session_state.username, f"Certificate {idx + 1}", text)
                     st.success(f"✅ Certificate {idx + 1} Saved! Refresh Portfolio to View.")
-                    st.rerun()  # ✅ Fixed: Ensures certificates appear instantly in Portfolio
+                    st.experimental_rerun()  # ✅ Ensures certificates appear instantly in Portfolio
 
         except Exception as e:
             st.error(f"⚠ Error processing file: {e}")

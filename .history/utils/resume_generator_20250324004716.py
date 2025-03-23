@@ -3,8 +3,6 @@ from PIL import Image
 import fitz  # PyMuPDF
 import io
 import datetime
-import os
-import pytesseract
 from utils.ocr import extract_text_from_image
 from utils.resume_generator import generate_resume
 from utils.recommender import recommend_events
@@ -13,17 +11,6 @@ from utils.auth import authenticate_user
 
 # 🎨 Set Streamlit Page Config
 st.set_page_config(page_title="Student Portfolio", page_icon="📜", layout="wide")
-
-# ✅ Set Tesseract Path Based on OS
-if os.name == "nt":  # Windows
-    pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
-else:  # Linux
-    pytesseract.pytesseract.tesseract_cmd = "/usr/bin/tesseract"
-
-# ✅ Check if Tesseract Exists
-if not os.path.exists(pytesseract.pytesseract.tesseract_cmd):
-    st.error(f"⚠ Tesseract not found at {pytesseract.pytesseract_cmd}. Please install it.")
-    st.stop()
 
 # 🎉 App Title
 st.title("📜 Student Digital Portfolio & Resume Generator")
@@ -148,32 +135,3 @@ elif page == "🎟 Event Recommendations":
                 st.warning("⚠ No matching events found.")
         else:
             st.warning("⚠ Please enter at least one interest.")
-
-# 🏠 **Home - Upload Certificates (Saves to Portfolio)**
-elif page == "🏠 Home":
-    st.header("🎉 Upload Certificates")
-    uploaded_file = st.file_uploader("📂 Upload a certificate", type=["jpg", "png", "pdf"])
-
-    if uploaded_file:
-        extracted_texts = []
-        try:
-            if uploaded_file.type.startswith("image/"):
-                image = Image.open(uploaded_file)
-                st.image(image, caption="🖼 Uploaded Certificate", use_container_width=True)
-                extracted_texts.append(extract_text_from_image(image))
-
-            elif uploaded_file.type == "application/pdf":
-                images = extract_images_from_pdf(uploaded_file)
-                for idx, image in enumerate(images):
-                    st.image(image, caption=f"📄 Page {idx + 1}", use_container_width=True)
-                    extracted_texts.append(extract_text_from_image(image))
-
-            for idx, text in enumerate(extracted_texts):
-                st.write(f"📝 *Extracted Text {idx + 1}:* {text}")
-                if st.button(f"➕ Save Certificate {idx + 1}", key=f"save_{idx}"):
-                    save_achievement(st.session_state.username, f"Certificate {idx + 1}", text)
-                    st.success(f"✅ Certificate {idx + 1} Saved! Refresh Portfolio to View.")
-                    st.rerun()  # ✅ Fixed: Ensures certificates appear instantly in Portfolio
-
-        except Exception as e:
-            st.error(f"⚠ Error processing file: {e}")
