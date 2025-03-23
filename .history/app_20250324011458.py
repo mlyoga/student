@@ -20,11 +20,8 @@ if os.name == "nt":  # Windows
 else:  # Linux
     pytesseract.pytesseract_cmd = "/usr/bin/tesseract"
 
-# ✅ Check if Tesseract Exists and Print Version
-try:
-    tesseract_version = pytesseract.get_tesseract_version()
-    print("✅ Tesseract OCR Version:", tesseract_version)
-except Exception as e:
+# ✅ Check if Tesseract Exists
+if not os.path.exists(pytesseract.pytesseract.tesseract_cmd):
     st.error(f"⚠ Tesseract not found at {pytesseract.pytesseract_cmd}. Please install it.")
     st.stop()
 
@@ -48,7 +45,7 @@ if not st.session_state.authenticated:
             st.session_state.authenticated = True
             st.session_state.username = username
             st.success("✅ Logged in successfully!")
-            st.rerun()  # Redirect after login
+            st.experimental_rerun()  # Redirect after login
         else:
             st.error("❌ Invalid username or password.")
     st.stop()
@@ -60,7 +57,7 @@ page = st.sidebar.radio(
     ["🏠 Home", "📄 Resume Generator", "🎟 Event Recommendations", "📂 Digital Portfolio"]
 )
 
-# 🖼 Extract Images from PDF
+# 🖼 Function to Extract Images from PDF
 def extract_images_from_pdf(pdf_file):
     images = []
     try:
@@ -177,8 +174,8 @@ elif page == "🏠 Home":
                 st.write(f"📝 *Extracted Text {idx + 1}:* {text}")
                 if st.button(f"➕ Save Certificate {idx + 1}", key=f"save_{idx}"):
                     save_achievement(st.session_state.username, f"Certificate {idx + 1}", text)
-                    st.success(f"✅ Certificate {idx + 1} Saved!")
-                    st.rerun()
+                    st.success(f"✅ Certificate {idx + 1} Saved! Refresh Portfolio to View.")
+                    st.experimental_rerun()  # Ensures certificates appear instantly
 
         except Exception as e:
             st.error(f"⚠ Error processing file: {e}")
