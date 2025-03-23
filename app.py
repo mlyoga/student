@@ -18,7 +18,7 @@ st.set_page_config(page_title="Student Portfolio", page_icon="📜", layout="wid
 if os.name == "nt":  # Windows
     pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 else:  # Linux
-    pytesseract.pytesseract.tesseract_cmd = "/usr/bin/tesseract"
+    pytesseract.pytesseract_cmd = "/usr/bin/tesseract"
 
 # ✅ Check if Tesseract Exists
 if not os.path.exists(pytesseract.pytesseract.tesseract_cmd):
@@ -34,6 +34,7 @@ if "authenticated" not in st.session_state:
 if "username" not in st.session_state:
     st.session_state.username = None
 
+# 🔐 User Authentication
 if not st.session_state.authenticated:
     st.header("🔑 Login")
     username = st.text_input("👤 Username")
@@ -44,6 +45,7 @@ if not st.session_state.authenticated:
             st.session_state.authenticated = True
             st.session_state.username = username
             st.success("✅ Logged in successfully!")
+            st.experimental_rerun()  # Redirect after login
         else:
             st.error("❌ Invalid username or password.")
     st.stop()
@@ -55,7 +57,7 @@ page = st.sidebar.radio(
     ["🏠 Home", "📄 Resume Generator", "🎟 Event Recommendations", "📂 Digital Portfolio"]
 )
 
-# 🖼 Extract Images from PDF
+# 🖼 Function to Extract Images from PDF
 def extract_images_from_pdf(pdf_file):
     images = []
     try:
@@ -69,7 +71,7 @@ def extract_images_from_pdf(pdf_file):
         st.error(f"⚠ Error extracting images from PDF: {e}")
     return images
 
-# 📂 **Digital Portfolio (With Certificates)**
+# 📂 **Digital Portfolio**
 if page == "📂 Digital Portfolio":
     st.header("📂 My Digital Portfolio")
 
@@ -92,7 +94,7 @@ if page == "📂 Digital Portfolio":
     else:
         st.warning("⚠ No achievements added yet.")
 
-    # 📜 Certificates (Displays Uploaded Ones!)
+    # 📜 Certificates Section
     st.subheader("📜 Certificates")
     saved_certificates = get_achievements(st.session_state.username)
     if saved_certificates:
@@ -149,7 +151,7 @@ elif page == "🎟 Event Recommendations":
         else:
             st.warning("⚠ Please enter at least one interest.")
 
-# 🏠 **Home - Upload Certificates (Saves to Portfolio)**
+# 🏠 **Home - Upload Certificates**
 elif page == "🏠 Home":
     st.header("🎉 Upload Certificates")
     uploaded_file = st.file_uploader("📂 Upload a certificate", type=["jpg", "png", "pdf"])
@@ -173,7 +175,7 @@ elif page == "🏠 Home":
                 if st.button(f"➕ Save Certificate {idx + 1}", key=f"save_{idx}"):
                     save_achievement(st.session_state.username, f"Certificate {idx + 1}", text)
                     st.success(f"✅ Certificate {idx + 1} Saved! Refresh Portfolio to View.")
-                    st.rerun()  # ✅ Fixed: Ensures certificates appear instantly in Portfolio
+                    st.experimental_rerun()  # Ensures certificates appear instantly
 
         except Exception as e:
             st.error(f"⚠ Error processing file: {e}")
