@@ -18,25 +18,16 @@ st.set_page_config(page_title="Student Portfolio", page_icon="📜", layout="wid
 if os.name == "nt":  # Windows
     tesseract_path = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 else:  # Linux / MacOS
-    tesseract_paths = ["/usr/bin/tesseract", "/usr/local/bin/tesseract"]
-    tesseract_path = None
-    for path in tesseract_paths:
-        if os.path.exists(path):
-            tesseract_path = path
-            break
-
-if not tesseract_path or not os.path.exists(tesseract_path):
-    st.error("⚠ Tesseract is not installed! Add 'tesseract-ocr' in `packages.txt` for Linux deployments.")
-    st.stop()
+    tesseract_path = "/usr/bin/tesseract"
 
 pytesseract.pytesseract.tesseract_cmd = tesseract_path
 
-# ✅ Verify Tesseract Installation
+# ✅ Check if Tesseract Exists and Print Version
 try:
     tesseract_version = pytesseract.get_tesseract_version()
-    st.info(f"✅ Tesseract OCR Version: {tesseract_version}")
+    print(f"✅ Tesseract OCR Version: {tesseract_version}")
 except Exception as e:
-    st.error(f"⚠ Error detecting Tesseract: {e}")
+    st.error(f"⚠ Tesseract not found at {tesseract_path}. Please install it.")
     st.stop()
 
 # 🎉 App Title
@@ -59,7 +50,7 @@ if not st.session_state.authenticated:
             st.session_state.authenticated = True
             st.session_state.username = username
             st.success("✅ Logged in successfully!")
-            st.experimental_rerun()
+            st.experimental_rerun()  # Redirect after login
         else:
             st.error("❌ Invalid username or password.")
     st.stop()
@@ -108,6 +99,7 @@ if page == "📂 Digital Portfolio":
     else:
         st.warning("⚠ No achievements added yet.")
 
+    # 📜 Certificates Section
     st.subheader("📜 Certificates")
     saved_certificates = get_achievements(st.session_state.username)
     if saved_certificates:
@@ -183,7 +175,12 @@ elif page == "🏠 Home":
                     st.image(image, caption=f"📄 Page {idx + 1}", use_container_width=True)
                     extracted_texts.append(extract_text_from_image(image))
 
-            st.experimental_rerun()
+            for idx, text in enumerate(extracted_texts):
+                st.write(f"📝 *Extracted Text {idx + 1}:* {text}")
+                if st.button(f"➕ Save Certificate {idx + 1}", key=f"save_{idx}"):
+                    save_achievement(st.session_state.username, f"Certificate {idx + 1}", text)
+                    st.success(f"✅ Certificate {idx + 1} Saved! Refresh Portfolio to View.")
+                    st.experimental_rerun()  # Refresh page instantly
 
         except Exception as e:
             st.error(f"⚠ Error processing file: {e}")
